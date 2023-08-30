@@ -1,6 +1,6 @@
 import {
     Modal, Pressable, Text, View, StyleSheet,
-    TextInput, FlatList, Image, Dimensions
+    TextInput, FlatList, Image
 } from "react-native";
 
 

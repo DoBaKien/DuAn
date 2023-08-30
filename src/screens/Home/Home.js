@@ -1,8 +1,18 @@
 import { Button, StyleSheet, View } from 'react-native';
-
+import React, { useEffect } from 'react';
+import { NotificationService, onDisplayNotification, requestUserPermission } from '../../assets/component/NotiHelper';
 export default function Home({ navigation }) {
+
+    useEffect(() => {
+        requestUserPermission()
+        NotificationService()
+    }, [])
     return (
         <View style={styles.container}>
+            <Button
+                title="Thông báo"
+                onPress={onDisplayNotification}
+            />
             <Button
                 title="Bản đồ"
                 onPress={() => {
