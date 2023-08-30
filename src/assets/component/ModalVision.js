@@ -1,6 +1,6 @@
 import {
     Modal, Pressable, Text, View, StyleSheet,
-    TextInput, FlatList, Image
+    TextInput, FlatList, Image, Dimensions
 } from "react-native";
 
 
@@ -186,10 +186,10 @@ const styles = StyleSheet.create({
         justifyContent: "space-between"
     },
     circle: {
-        width: "40%",
+        width: 150,
         height: 150,
         borderWidth: 1,
-        borderRadius: 20,
+        borderRadius: 150,
         justifyContent: "center",
         alignItems: "center",
     },

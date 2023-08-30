@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, StyleSheet, Text, Button } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, StyleSheet, Text, Button, PermissionsAndroid, Image } from 'react-native';
 import MapView, {
   Callout,
   Marker,
@@ -8,16 +8,20 @@ import MapView, {
 import ModalDone from '../../assets/component/ModalDone';
 import ModalCancel from '../../assets/component/ModalCancel';
 
+import { mapStype } from '../../assets/config/config';
+import Geolocation from 'react-native-geolocation-service';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 
 function Map() {
   const [modalVisible, setModalVisible] = useState(false)
   const [modalVisibleC, setModalVisibleC] = useState(false)
-
+  const [currentLocation, setCurrentLocation] = useState("")
   const [marketList, setMarketList] = useState([
     {
       id: 1,
-      latitude: 9.8117844,
-      longitude: 105.8187709,
+      latitude: 37.4214528,
+      longitude: -122.0868092,
       KH: "Nguyễn Công Tần",
       DC: "Ấp 4",
       No: 123456,
@@ -27,8 +31,8 @@ function Map() {
     },
     {
       id: 2,
-      latitude: 9.8124183,
-      longitude: 105.820193,
+      latitude: 37.4215267,
+      longitude: -122.0860008,
       KH: "Nguyễn Công Tần 2",
       DC: "Ấp 41",
       No: 1234562,
@@ -37,14 +41,54 @@ function Map() {
     },
   ]);
 
+  const MyCustomMarkerView = () => {
+    return (
+      <Icon name="circle-slice-8" size={30} color="blue" />
+    );
+  };
 
+  useEffect(() => {
+    _getLocationPermission()
+  }, [])
+
+  async function _getLocationPermission() {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          'title': 'Example App',
+          'message': 'Example App access to your location '
+        }
+      )
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        getCurrentLocation()
+        console.log("You can use the location")
+      } else {
+        console.log("location permission denied")
+        alert("Location permission denied");
+      }
+    } catch (err) {
+      console.warn(err)
+    }
+  }
+
+  function getCurrentLocation() {
+    Geolocation.getCurrentPosition(
+      position => {
+        setCurrentLocation(position.coords);
+      },
+      error => {
+        console.error(error);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  }
 
   return (
     <View style={styles.container}>
       <ModalDone setModalVisible={setModalVisible} modalVisible={modalVisible} />
       <ModalCancel setModalVisible={setModalVisibleC} modalVisible={modalVisibleC} />
       <View style={{ height: 50, flexDirection: 'row', justifyContent: 'space-evenly' }}>
-
         <Button
           onPress={() => setModalVisibleC(true)}
           title="Hủy"
@@ -53,19 +97,29 @@ function Map() {
           onPress={() => setModalVisible(true)}
           title="Done"
         />
+
       </View>
 
       <View style={{ flex: 1 }}>
         <MapView
+          // customMapStyle={mapStype}
           provider={PROVIDER_GOOGLE}
           style={styles.map}
           region={{
-
-            latitude: 9.8119654,
-            longitude: 105.8199631,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
+            latitude: 37.4219983,
+            longitude: -122.084,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
           }}>
+          {currentLocation !== "" ?
+            <Marker
+              coordinate={{
+                latitude: currentLocation.latitude,
+                longitude: currentLocation.longitude,
+              }}
+            >
+              <MyCustomMarkerView />
+            </Marker> : <></>}
 
           {marketList.map(marker => {
             return (
@@ -75,7 +129,6 @@ function Map() {
                   latitude: marker.latitude,
                   longitude: marker.longitude,
                 }}
-
               >
                 <Callout>
                   <Text>KH:{marker.KH}</Text>
