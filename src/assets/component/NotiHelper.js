@@ -1,7 +1,7 @@
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import notifee, { AndroidImportance } from '@notifee/react-native';
+import notifee, { AndroidImportance, EventType } from '@notifee/react-native';
 
 export async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();
@@ -63,14 +63,14 @@ export const NotificationService = () => {
 
 export async function onDisplayNotification(data) {
     // Request permissions (required for iOS)
-
+    notifee.getBadgeCount().then(count => console.log('Current badge count: ', count));
     if (Platform.OS == 'ios') {
         await notifee.requestPermission()
     }
     // Create a channel (required for Android)
     const channelId = await notifee.createChannel({
-        id: "default3",
-        name: "Default Channel 3",
+        id: "default1",
+        name: "Default Channel 1",
         sound: "default",
         importance: AndroidImportance.HIGH,
     });
@@ -80,7 +80,7 @@ export async function onDisplayNotification(data) {
         body: data.notification && data.notification.body ? data.notification.body : "body",
         android: {
             channelId,
-            color: '#4caf50',
+            importance: AndroidImportance.HIGH,
             actions: [
                 {
                     title: '<b>Đồng ý</b>',
@@ -99,5 +99,29 @@ export async function onDisplayNotification(data) {
 
         },
     });
+
+    notifee.onBackgroundEvent(async ({ type, detail }) => {
+        const { notification, pressAction } = detail;
+        console.log(notification);
+        // Check if the user pressed the "Mark as read" action
+        if (type === EventType.ACTION_PRESS && pressAction.id === 'accept') {
+            // Update external API
+            console.log("accept");
+            await notifee.cancelNotification(notification.id);
+        }
+    });
+
+    notifee.onForegroundEvent(({ type, detail }) => {
+
+        switch (type) {
+            case EventType.DISMISSED:
+                console.log('User dismissed notification', detail.notification);
+                break;
+            case EventType.PRESS:
+                console.log('User pressed notification', detail.notification);
+                break;
+        }
+    });
+
 
 }
