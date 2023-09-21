@@ -7,7 +7,6 @@ import MapView, {
 } from 'react-native-maps';
 import ModalDone from '../../assets/component/ModalDone';
 import ModalCancel from '../../assets/component/ModalCancel';
-
 import { mapStype } from '../../assets/config/config';
 import Geolocation from 'react-native-geolocation-service';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';

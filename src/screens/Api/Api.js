@@ -5,11 +5,10 @@ import React from 'react';
 
 function Api() {
     const [location, setLocation] = useState("")
-    const [count, setCount] = useState(0);
+    const [countdown1, setCountDown1] = useState(60)
     useEffect(() => {
-        axios.get('http://localhost:50314/Api/SangTaiChuyenLuoi/')
+        axios.get(`http://10.170.215.5:8000/Api/SangTaiChuyenLuoi/find?id=${1}`)
             .then(function (response) {
-
                 setLocation(response.data);
             })
             .catch(function (error) {
@@ -17,32 +16,43 @@ function Api() {
             });
     }, [])
 
+    useEffect(() => {
+        const time1 = setTimeout(() => {
+            if (countdown1 > 0) {
+                setCountDown1(countdown1 - 1)
+            } else {
+                setCountDown1(60)
+            }
 
-    // useEffect(() => {
-    //     // const intervalId = setInterval(() => {
-    //     //     axios.put('http://10.170.215.5:8001/location/1', {
-    //     //         latitude: "232",
-    //     //         longitude: "ews",
-    //     //         command: 'stop'
-    //     //     })
+        }, 1000)
+        return () => clearInterval(time1)
+    }, [countdown1])
 
-    //     //     setCount(count + 1);
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            axios.post(`http://10.170.215.5:8000/Api/SangTaiChuyenLuoi/update`, {
+                CUSTOMER_ID: 1,
+                LATITUDE: "310.222",
+                LONGITUDE: "320.222"
+            })
+                .then(function (response) {
+                    setLocation(response.data);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }, 60000);
 
-
-    //     // }, 2000);
-
-
-    //     return () => clearInterval(intervalId);
-    // }, [count]);
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, []);
 
     return (
         <View style={{ justifyContent: "center", alignItems: "center", height: "100%" }}>
-            <Text style={{ fontSize: 30 }}>latitude: {location.latitude}</Text>
-            <Text style={{ fontSize: 30 }}>longitude: {location.longitude}</Text>
-            <Button
-                title="Press me"
-                onPress={() => Alert.alert('Simple Button pressed')}
-            />
+            <Text style={{ fontSize: 30 }}>latitude: {location.LATITUDE}</Text>
+            <Text style={{ fontSize: 30 }}>longitude: {location.LONGITUDE}</Text>
+            <Text>{countdown1}</Text>
         </View>
     );
 }
