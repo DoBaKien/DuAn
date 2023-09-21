@@ -6,6 +6,7 @@ import DashBoard from './src/screens/DashBoard/DashBoard';
 import Home from './src/screens/Home/Home';
 import Supervision from './src/screens/Supervision/Supervision';
 import Assignment from './src/screens/Assignment/Assignment';
+import Api from './src/screens/Api/Api';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,6 +41,12 @@ export default function App() {
         <Stack.Screen
           name="Assignment"
           component={Assignment}
+          options={{
+            headerShown: false,
+          }}></Stack.Screen>
+        <Stack.Screen
+          name="Api"
+          component={Api}
           options={{
             headerShown: false,
           }}></Stack.Screen>

@@ -108,6 +108,9 @@ export async function onDisplayNotification(data) {
             // Update external API
             console.log("accept");
             await notifee.cancelNotification(notification.id);
+        } else if (type === EventType.ACTION_PRESS && pressAction.id === 'ingore') {
+            console.log("accept");
+            await notifee.cancelNotification(notification.id);
         }
     });
 

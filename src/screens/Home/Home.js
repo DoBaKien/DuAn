@@ -38,7 +38,12 @@ export default function Home({ navigation }) {
                     navigation.navigate('Assignment');
                 }}
             />
-
+            <Button
+                title="Api"
+                onPress={() => {
+                    navigation.navigate('Api');
+                }}
+            />
         </View>
     );
 }
