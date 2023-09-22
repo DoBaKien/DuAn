@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, Button, PermissionsAndroid, Image } from 'react-native';
+import { View, StyleSheet, Text, Button, PermissionsAndroid } from 'react-native';
 import MapView, {
   Callout,
   Marker,
@@ -8,19 +8,38 @@ import MapView, {
 import ModalDone from '../../assets/component/ModalDone';
 import ModalCancel from '../../assets/component/ModalCancel';
 import { mapStype } from '../../assets/config/config';
-import Geolocation from 'react-native-geolocation-service';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { getPreciseDistance, getCenter } from 'geolib';
 
+import Geolocation from '@react-native-community/geolocation'
 
 function Map() {
   const [modalVisible, setModalVisible] = useState(false)
   const [modalVisibleC, setModalVisibleC] = useState(false)
   const [currentLocation, setCurrentLocation] = useState("")
+
+  const a = getPreciseDistance(
+    { latitude: 10.796073868914615, longitude: 106.63558936058817 },
+    { latitude: 10.795542204312463, longitude: 106.63467995227164 }
+  );
+
+  const b = getCenter([
+    { latitude: 10.796073868914615, longitude: 106.63558936058817 },
+    { latitude: 10.795542204312463, longitude: 106.63467995227164 }
+  ]);
+
+  useEffect(() => {
+    _getLocationPermission()
+  }, [])
+
+  console.log("a=", a);
+  console.log("b=", b);
+
   const [marketList, setMarketList] = useState([
     {
       id: 1,
-      latitude: 37.4214528,
-      longitude: -122.0868092,
+      latitude: 37.4262536,
+      longitude: -122.093183,
       KH: "Nguyễn Công Tần",
       DC: "Ấp 4",
       No: 123456,
@@ -30,8 +49,8 @@ function Map() {
     },
     {
       id: 2,
-      latitude: 37.4215267,
-      longitude: -122.0860008,
+      latitude: 37.4249876,
+      longitude: -122.0874513,
       KH: "Nguyễn Công Tần 2",
       DC: "Ấp 41",
       No: 1234562,
@@ -42,13 +61,30 @@ function Map() {
 
   const MyCustomMarkerView = () => {
     return (
-      <Icon name="circle-slice-8" size={30} color="blue" />
+      <View>
+        <Icon name="circle-slice-8" size={30} color="blue" />
+      </View>
+    );
+  };
+  const MyCustomMarkerViewNV = (props) => {
+    return (
+      <View style={{ display: "flex", justifyContent: "center", alignItems: 'center' }}>
+        <Text>{getDistance(props)}</Text>
+        <Icon name="account" size={30} color="black" />
+        <Text style={{ color: "red" }}>Nhan viên</Text>
+      </View>
     );
   };
 
-  useEffect(() => {
-    _getLocationPermission()
-  }, [])
+  const getDistance = (props) => {
+    const a = getPreciseDistance(
+      { latitude: props.latitude, longitude: props.longitude },
+      { latitude: currentLocation.latitude, longitude: currentLocation.longitude }
+    );
+    return <Text style={{ color: "red" }}>{a} (m)</Text>
+  }
+
+
 
   async function _getLocationPermission() {
     try {
@@ -60,7 +96,7 @@ function Map() {
         }
       )
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        getCurrentLocation()
+        Geolocation.getCurrentPosition(info => setCurrentLocation(info.coords));
         console.log("You can use the location")
       } else {
         console.log("location permission denied")
@@ -71,17 +107,7 @@ function Map() {
     }
   }
 
-  function getCurrentLocation() {
-    Geolocation.getCurrentPosition(
-      position => {
-        setCurrentLocation(position.coords);
-      },
-      error => {
-        console.error(error);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-    );
-  }
+
 
   return (
     <View style={styles.container}>
@@ -105,8 +131,8 @@ function Map() {
           provider={PROVIDER_GOOGLE}
           style={styles.map}
           region={{
-            latitude: 37.4219983,
-            longitude: -122.084,
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
             latitudeDelta: 0.005,
             longitudeDelta: 0.005,
           }}>
@@ -129,6 +155,7 @@ function Map() {
                   longitude: marker.longitude,
                 }}
               >
+                {/* <MyCustomMarkerViewNV latitude={marker.latitude} longitude={marker.longitude} /> */}
                 <Callout>
                   <Text>KH:{marker.KH}</Text>
                   <Text>DC:{marker.DC}</Text>

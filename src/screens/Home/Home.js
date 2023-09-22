@@ -6,7 +6,6 @@ export default function Home({ navigation }) {
     useEffect(() => {
         requestUserPermission()
         NotificationService()
-
     }, [])
     return (
         <View style={styles.container}>
